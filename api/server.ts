@@ -1,19 +1,31 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import fs from "fs";
 import path from "path";
 import { MongoClient, Db, ObjectId } from "mongodb";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 
 const apiEnvPath = path.resolve(__dirname, ".env");
-dotenv.config({ path: apiEnvPath });
+const rootEnvPath = path.resolve(__dirname, "..", ".env");
+
+for (const envPath of [apiEnvPath, rootEnvPath]) {
+    if (fs.existsSync(envPath)) {
+        dotenv.config({ path: envPath });
+    }
+}
+
 dotenv.config();
 
-const PORT = process.env.PORT || 8787;
+const PORT = Number(process.env.PORT || 8787);
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
-const ALLOWED_EMAILS = (process.env.ALLOWED_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const allowedEmailRaw = process.env.ALLOWED_EMAILS || "";
+const ALLOWED_EMAILS = allowedEmailRaw
+    .split(/[\n,]+/)
+    .map((e) => e.replace(/^['\"]|['\"]$/g, "").trim().toLowerCase())
+    .filter(Boolean);
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || "");
 
 let db: Db;
 
@@ -57,7 +69,8 @@ app.post("/api/auth/google", async (req: Request, res: Response) => {
         if (!payload?.email) return res.status(401).send("No email on token");
         const email = payload.email.toLowerCase();
         if (ALLOWED_EMAILS.length && !ALLOWED_EMAILS.includes(email)) {
-            return res.status(403).send("Email not authorized for this till");
+            console.error("Whitelist rejection:", { email, allowedEmails: ALLOWED_EMAILS });
+            return res.status(403).send(`Email not authorized for this till: ${email}`);
         }
         const token = jwt.sign({ email, name: payload.name || email }, JWT_SECRET, { expiresIn: "12h" });
         res.json({ token, email, name: payload.name || email });
