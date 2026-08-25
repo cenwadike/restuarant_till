@@ -1,0 +1,4 @@
+.env*
+package-lock*
+node_modules/
+.vscode

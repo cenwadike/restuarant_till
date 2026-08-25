@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Final Bites — Till</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">FB</span>
+      <span class="brand-text">
+        <span class="brand-name">Final&nbsp;Bites <em>till</em></span>
+        <span class="brand-tagline">…where cravings meet their ends</span>
+      </span>
+    </div>
+    <div id="authArea" class="auth-area">
+      <div id="googleBtn"></div>
+      <div id="userChip" class="user-chip hidden">
+        <span id="userName"></span>
+        <button id="signOutBtn" class="link-btn">sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app" class="hidden">
+
+    <nav class="tabs" role="tablist">
+      <button class="tab" data-tab="menu">Menu & Stock Setup</button>
+      <button class="tab active" data-tab="sell">Sell</button>
+      <button class="tab" data-tab="buy">Buy inventory</button>
+      <button class="tab" data-tab="reports">Reports</button>
+    </nav>
+
+    <!-- MENU SETUP -->
+    <section id="tab-menu" class="tab-panel">
+      <div class="panel-grid">
+        <div class="search-col">
+          <label class="field-label">Current Menu Items</label>
+          <div id="manageItemGrid" class="quick-grid"></div>
+        </div>
+
+        <aside class="ticket-col">
+          <!-- Add Menu Item -->
+          <div class="ticket" style="margin-bottom: 20px;">
+            <div class="ticket-head"><span>ADD MENU ITEM</span></div>
+            <form id="createItemForm" class="purchase-form">
+              <label class="field-label">Item Name
+                <input id="newItemName" type="text" placeholder="e.g. Popcorn" required autocomplete="off">
+              </label>
+              <label class="field-label">Price (₦)
+                <input id="newItemPrice" type="number" min="0" step="0.5" placeholder="e.g. 50" required>
+              </label>
+              <label class="field-label">Category
+                <input id="newItemCategory" type="text" placeholder="e.g. Snacks">
+              </label>
+              <button type="submit" id="saveItemBtn" class="btn primary block">Save Menu Item</button>
+            </form>
+          </div>
+
+          <!-- Add Ingredient Line -->
+          <div class="ticket">
+            <div class="ticket-head"><span>ADD INGREDIENT LINE</span></div>
+            <form id="createIngredientForm" class="purchase-form">
+              <label class="field-label">Ingredient Name
+                <input id="newIngName" type="text" placeholder="e.g. Raw Corn" required autocomplete="off">
+              </label>
+              <label class="field-label">Unit of Measure
+                <input id="newIngUnit" type="text" placeholder="e.g. kg, pcs, liters" required>
+              </label>
+              <label class="field-label">Initial Stock
+                <input id="newIngStock" type="number" min="0" step="0.01" placeholder="e.g. 10">
+              </label>
+              <label class="field-label">Reorder Level
+                <input id="newIngReorder" type="number" min="0" step="0.01" placeholder="e.g. 2">
+              </label>
+              <button type="submit" id="saveIngBtn" class="btn primary block">Save Ingredient</button>
+            </form>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- SELL -->
+    <section id="tab-sell" class="tab-panel active">
+      <div class="panel-grid">
+        <div class="search-col">
+          <label class="field-label" for="itemSearch">Find item to sell</label>
+          <div class="search-box">
+            <input id="itemSearch" type="text" placeholder="Type an item name…" autocomplete="off">
+            <div id="itemSuggest" class="suggest-list hidden"></div>
+          </div>
+          <div id="itemGrid" class="quick-grid"></div>
+        </div>
+
+        <aside class="ticket-col">
+          <div class="ticket">
+            <div class="ticket-head">
+              <span>ORDER</span>
+              <span id="ticketTime"></span>
+            </div>
+            <div id="ticketLines" class="ticket-lines">
+              <p class="ticket-empty">No items yet — search and tap to add.</p>
+            </div>
+            <div class="ticket-total-row">
+              <span>TOTAL</span>
+              <span id="ticketTotal">₦0.00</span>
+            </div>
+            <button id="completeSaleBtn" class="btn primary block" disabled>Complete sale</button>
+            <button id="clearTicketBtn" class="btn ghost block">Clear</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- BUY -->
+    <section id="tab-buy" class="tab-panel">
+      <div class="panel-grid">
+        <div class="search-col">
+          <label class="field-label" for="ingredientSearch">Find ingredient purchased</label>
+          <div class="search-box">
+            <input id="ingredientSearch" type="text" placeholder="Type an ingredient name…" autocomplete="off">
+            <div id="ingredientSuggest" class="suggest-list hidden"></div>
+          </div>
+          <div id="stockGrid" class="quick-grid"></div>
+        </div>
+
+        <aside class="ticket-col">
+          <div class="ticket">
+            <div class="ticket-head"><span>PURCHASE</span><span id="purchaseTime"></span></div>
+            <form id="purchaseForm" class="purchase-form">
+              <p id="purchaseTarget" class="purchase-target">— select an ingredient —</p>
+              <label class="field-label">Quantity <span id="purchaseUnit"></span>
+                <input id="purchaseQty" type="number" min="0.01" step="0.01" required>
+              </label>
+              <label class="field-label">Unit cost (₦)
+                <input id="purchaseCost" type="number" min="0" step="0.01" required>
+              </label>
+              <label class="field-label">Supplier (optional)
+                <input id="purchaseSupplier" type="text" placeholder="e.g. Kano Main Market Suppliers">
+              </label>
+              <div class="purchase-total-row"><span>Total spend</span><span id="purchaseTotal">₦0.00</span></div>
+              <button type="submit" id="logPurchaseBtn" class="btn primary block" disabled>Log purchase</button>
+            </form>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section id="tab-reports" class="tab-panel">
+      <div class="summary-cards">
+        <div class="card"><span class="card-label">Revenue today</span><span id="sumRevenue"
+            class="card-value">₦0.00</span></div>
+        <div class="card"><span class="card-label">Cost today</span><span id="sumCost" class="card-value">₦0.00</span>
+        </div>
+        <div class="card profit"><span class="card-label">Profit today</span><span id="sumProfit"
+            class="card-value">₦0.00</span></div>
+        <div class="card"><span class="card-label">Items sold</span><span id="sumCount" class="card-value">0</span>
+        </div>
+      </div>
+
+      <div class="report-grid">
+        <div class="report-block">
+          <h3>Low stock</h3>
+          <div id="lowStockList" class="low-stock-list">
+            <p class="muted">Loading…</p>
+          </div>
+        </div>
+        <div class="report-block">
+          <h3>Recent activity</h3>
+          <div id="ledgerList" class="ledger-list">
+            <p class="muted">Loading…</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="export-row">
+        <span class="field-label">Export for BI / Excel</span>
+        <div class="export-buttons">
+          <button class="btn ghost" data-export="sales">Sales CSV</button>
+          <button class="btn ghost" data-export="purchases">Purchases CSV</button>
+          <button class="btn ghost" data-export="ledger">Ledger CSV</button>
+          <button class="btn ghost" data-export="items">Items CSV</button>
+          <button class="btn ghost" data-export="ingredients">Ingredients CSV</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    window.GOOGLE_CLIENT_ID = "226653861609-smtj3qbkh4pqfi2l4d49khe4c5bvgtog.apps.googleusercontent.com";
+  </script>
+  <script src="app.js"></script>
+</body>
+
+</html>

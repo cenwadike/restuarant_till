@@ -1,0 +1,26 @@
+{
+  "name": "final-bites-till",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npx tsx api/server.ts",
+    "build": "npx tsc --target ES2020 --module commonjs --esModuleInterop --skipLibCheck api/server.ts --noEmit && npx tsc --target ES2020 --module ES2020 --lib DOM,ES2020 --strict false --noEmit ui/app.ts",
+    "start": "node api/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "google-auth-library": "^11.0.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.6.0",
+    "tsx": "^4.23.12"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.3.0",
+    "typescript": "^7.0.2"
+  }
+}
