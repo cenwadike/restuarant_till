@@ -1,10 +1,13 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
 import { MongoClient, Db, ObjectId } from "mongodb";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 
+const apiEnvPath = path.resolve(__dirname, ".env");
+dotenv.config({ path: apiEnvPath });
 dotenv.config();
 
 const PORT = process.env.PORT || 8787;
